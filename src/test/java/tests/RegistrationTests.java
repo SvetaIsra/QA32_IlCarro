@@ -1,5 +1,6 @@
 package tests;
 
+import models.User;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -16,26 +17,43 @@ public class RegistrationTests extends TestBase {
 
     @Test
     public void registrationSuccess() {
-        int index = (int)(System.currentTimeMillis()/1000)%36000;
+        int index = (int)(System.currentTimeMillis()/1000)%3600;
         app.user().openRegistrationForm();
         app.user().fillRegistrationForm("Sonya","Sun","sonya"+index+"@gmail.com","Sonya2022$");
-        //app.user().checkPolicy();
         app.user().checkPolicyXY();
         app.user().submit();
-        app.user().pause(1000);
         Assert.assertEquals(app.user().checkMessage(),"You are logged in success");
 
     }
     @Test
-    public void registrationSuccessNew() {
-        int index = (int)(System.currentTimeMillis()/1000)%36000;
+    public void registrationSuccessModel() {
+        int index = (int)(System.currentTimeMillis()/1000)%3600;
+        User user = new User().withName("Sonya").withLastName("Sun").withEmail("sonya"+index+"@gmail.com").withPassword("Sonya2022$");
+
         app.user().openRegistrationForm();
-        app.user().fillRegistrationForm("Sonya","Sun","sonya"+index+"@gmail.com","Sonya2022$");
-        //app.user().checkPolicy();
+        app.user().fillRegistrationForm(user);
         app.user().checkPolicyXY();
         app.user().submit();
-        app.user().pause(2000);
         Assert.assertEquals(app.user().checkMessage(),"You are logged in success");
+
+    }
+    @Test
+    public void registrationWrongPasswordModel() {
+        User user = new User()
+                .withName("Lia")
+                .withLastName("Like")
+                .withEmail("lia@gmail.com")
+                .withPassword("12345");
+
+        app.user().openRegistrationForm();
+        app.user().fillRegistrationForm(user);
+        app.user().checkPolicyXY();
+        app.user().submit();
+        //error + button not active
+        Assert.assertTrue(app.user().isErrorPasswordDisplayedSize());
+        Assert.assertTrue(app.user().isErrorPasswordDisplayedFormat());
+        Assert.assertFalse(app.user().isYallaButtonActive());
+        Assert.assertTrue(app.user().isButtonNotClickable());
 
     }
     @AfterMethod
